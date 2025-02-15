@@ -1,20 +1,32 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 import yt_dlp
+import os
+import sys
+import subprocess
+
+# Global variable for download folder
+download_folder = ""
+
+def open_folder():
+    if download_folder:
+            if sys.platform.startswith('win'):
+                os.startfile(download_folder)
+            elif sys.platform.startswith('darwin'):
+                subprocess.Popen(['open', download_folder])
+            else:  # Linux and others
+                subprocess.Popen(['xdg-open', download_folder])
 
 
-def on_button_click():
-    # text = input_field.get("1.0", tk.END).strip()
-
-    selected_options = [audio_var.get(), playlist_var.get()]
-    print(audio_var.get())
-    
-    # print(f"Input Text: {text}")
-    # print(f"Checkbox States: {selected_options}")
-
+def select_folder():
+    global download_folder
+    folder = filedialog.askdirectory()
+    if folder:
+        download_folder = folder
+        folder_label.config(text=f"აირჩეული დირექტორია: {folder}", foreground="green")
 
 def format_urls():
-    # Get text input and split by new lines
+        # Get text input and split by new lines
     urls = input_field.get("1.0", tk.END).strip().split("\n")
     
     # Remove empty lines and spaces
@@ -71,49 +83,70 @@ def format_urls():
     else:
         ydl_opts['noplaylist'] = True
 
-
+    if download_folder:
+        ydl_opts['outtmpl'] = f"{download_folder}/%(title)s.%(ext)s"
+    else:
+        return
+    
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(urls) 
+        ydl.download(urls)
 
 
 
-
-# menu
+# Create main window
 root = tk.Tk()
 root.title("გადმოიწერე იუთუბიდან")
-root.geometry("700x500") 
+root.geometry("700x370")
+root.configure(bg="#9ACBD0")  # Dark background color
 
-# input field
-input_field = tk.Text(root, height=5, width=80)
-input_field.pack(pady=10)
+# Define styles
+style = ttk.Style()
+style.configure("TButton", font=("Helvetica", 14), padding=10, background="#9ACBD0", foreground="black")
+style.configure("TCheckbutton", font=("Helvetica", 12), padding=5, background="#9ACBD0", foreground="white")
+style.configure("TLabel", font=("Helvetica", 12), background="#9ACBD0", foreground="white")
 
-# checkboxes
+# Input frame
+input_frame = ttk.Frame(root, padding="10 10 10 10", style="TFrame")
+input_frame.pack(fill="x")
+
+input_label = ttk.Label(input_frame, text="ჩაწერე ბმულები | Enter-ით გამოტოვე", style="TLabel")
+input_label.pack(anchor="w")
+input_field = tk.Text(input_frame, height=5, width=80, font=("Helvetica", 12), bg="#9ACBD0", fg="white")
+input_field.pack(pady=5)
+
+# Checkbox frame
+checkbox_frame = ttk.Frame(root, padding="10 10 10 10")
+checkbox_frame.pack(fill="x")
+
 audio_var = tk.BooleanVar()
 playlist_var = tk.BooleanVar()
 midQ_var = tk.BooleanVar()
 lowQ_var = tk.BooleanVar()
 
-checkbox1 = ttk.Checkbutton(root, text="მარტო აუდიოს გადმოწერა", variable=audio_var)
-checkbox2 = ttk.Checkbutton(root, text="მთლიანი ფლეილისთის გადმოწერა", variable=playlist_var)
-checkbox3 = ttk.Checkbutton(root, text="720p", variable=midQ_var)
-checkbox4 = ttk.Checkbutton(root, text="240p", variable=lowQ_var)
+checkbox1 = ttk.Checkbutton(checkbox_frame, text="მარტო აუდიოს გადმოწერა", variable=audio_var)
+checkbox2 = ttk.Checkbutton(checkbox_frame, text="მთლიანი ფლეილისთის გადმოწერა", variable=playlist_var)
+checkbox3 = ttk.Checkbutton(checkbox_frame, text="720p", variable=midQ_var)
+checkbox4 = ttk.Checkbutton(checkbox_frame, text="240p", variable=lowQ_var)
 
+checkbox1.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+checkbox2.grid(row=0, column=1, sticky="w", padx=10, pady=5)
+checkbox3.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+checkbox4.grid(row=1, column=1, sticky="w", padx=10, pady=5)
 
+# Action frame
+action_frame = ttk.Frame(root, padding="10 10 10 10")
+action_frame.pack(fill="x")
 
-checkbox1.pack(anchor="w", padx=20)
-checkbox2.pack(anchor="w", padx=20)
-checkbox3.pack(anchor="w", padx=20, pady=20)
-checkbox4.pack(anchor="w", padx=20)
+download_button = ttk.Button(action_frame, text="გადმოწერა", command=format_urls, style="TButton")
+download_button.grid(row=0, column=0, padx=10, pady=10)
 
+folder_button = ttk.Button(action_frame, text="არჩევა", command=select_folder, style="TButton")
+folder_button.grid(row=0, column=1, padx=10, pady=10)
 
-# button
-button = ttk.Button(root, text="გადმოწერა", command=format_urls)
-button.pack(pady=55)
+folder_label = ttk.Label(action_frame, text="დირექტორია არ არის არჩეული", foreground="red", background="#F2EFE7")
+folder_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
-button = ttk.Button(root, text="დირექტორიის გახსნა", command=format_urls)
-button.pack(pady=4)
-
-
-
+open_folder_button = ttk.Button(action_frame, text="გახსნა", command=open_folder)
+open_folder_button.grid(row=0, column=3, padx=10, pady=10)
 
 root.mainloop()
