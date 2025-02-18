@@ -25,6 +25,8 @@ def select_folder():
         download_folder = folder
         folder_label.config(text=f"აირჩეული დირექტორია: {folder}", foreground="green")
 
+
+# გადმოწერის ლოგიკები
 def format_urls():
         # Get text input and split by new lines
     urls = input_field.get("1.0", tk.END).strip().split("\n")
@@ -49,17 +51,17 @@ def format_urls():
         }
     elif (midQ_var.get() == True):
         ydl_opts = {
-            'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
+            'format': 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/mp4',
             'outtmpl': '%(title)s.%(ext)s',
             'merge_output_format': 'mp4',  
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  
             }],
-        }  
+        }
     elif (lowQ_var.get() == True):
         ydl_opts = {
-            'format': 'bestvideo[height<=240]+bestaudio/best[height<=240]',
+            'format': 'bestvideo[height<=240][ext=mp4]+bestaudio[ext=m4a]/mp4',
             'outtmpl': '%(title)s.%(ext)s',
             'merge_output_format': 'mp4',  
             'postprocessors': [{
@@ -69,14 +71,17 @@ def format_urls():
         }
     else:
         ydl_opts = {
-            'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
-            'outtmpl': '%(title)s.%(ext)s',
-            'merge_output_format': 'mp4',  
-            'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',  
-            }],
+            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+                'outtmpl': f"{download_folder}/%(title)s.%(ext)s",
+                'merge_output_format': 'mp4',
+                'postprocessors': [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }],
         }  
+        
+
+
     
     if playlist_var.get():  # მთლიანი ფლეილისთის გადმოწერა
         ydl_opts['noplaylist'] = False
