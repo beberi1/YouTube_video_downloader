@@ -8,6 +8,13 @@ import subprocess
 # Global variable for download folder
 download_folder = ""
 
+def progress_hook(d):
+    """Updates the status label based on download progress."""
+    if d['status'] == 'downloading':
+        status_label.config(text=f"გადმოწერა მიმდინარეობს... {d['_percent_str']}", foreground="blue")
+    elif d['status'] == 'finished':
+        status_label.config(text="გადმოწერა დასრულდა!", foreground="green")
+
 def open_folder():
     if download_folder:
             if sys.platform.startswith('win'):
@@ -80,7 +87,8 @@ def format_urls():
                 }],
         }  
         
-
+    status_label.config(text="გადმოწერა დაიწყო...", foreground="blue")
+    root.update_idletasks()  # Update GUI immediately
 
     
     if playlist_var.get():  # მთლიანი ფლეილისთის გადმოწერა
@@ -95,13 +103,14 @@ def format_urls():
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download(urls)
+        status_label.config(text="გადმოწერა დასრულდა!", foreground="green")
 
 
 
 # Create main window
 root = tk.Tk()
 root.title("გადმოიწერე იუთუბიდან")
-root.geometry("700x370")
+root.geometry("700x400")
 root.configure(bg="#9ACBD0")  # Dark background color
 
 # Define styles
@@ -132,7 +141,10 @@ checkbox1 = ttk.Checkbutton(checkbox_frame, text="მარტო აუდი�
 checkbox2 = ttk.Checkbutton(checkbox_frame, text="მთლიანი ფლეილისთის გადმოწერა", variable=playlist_var)
 checkbox3 = ttk.Checkbutton(checkbox_frame, text="720p", variable=midQ_var)
 checkbox4 = ttk.Checkbutton(checkbox_frame, text="240p", variable=lowQ_var)
+status_label = ttk.Label(root, text="", font=("Helvetica", 12), foreground="black")
 
+
+status_label.pack(pady=5)
 checkbox1.grid(row=0, column=0, sticky="w", padx=10, pady=5)
 checkbox2.grid(row=0, column=1, sticky="w", padx=10, pady=5)
 checkbox3.grid(row=1, column=0, sticky="w", padx=10, pady=5)
