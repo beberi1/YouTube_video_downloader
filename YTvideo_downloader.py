@@ -58,7 +58,7 @@ def format_urls():
         }
     elif (midQ_var.get() == True):
         ydl_opts = {
-            'format': 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/mp4',
+            'format': 'bestvideo[height<=720][ext=mp4]+bestaudio/best[ext=mp4]',
             'outtmpl': '%(title)s.%(ext)s',
             'merge_output_format': 'mp4',  
             'postprocessors': [{
@@ -68,7 +68,7 @@ def format_urls():
         }
     elif (lowQ_var.get() == True):
         ydl_opts = {
-            'format': 'bestvideo[height<=240][ext=mp4]+bestaudio[ext=m4a]/mp4',
+            'format': 'bestvideo[height<=240][ext=mp4]+bestaudio/best[ext=mp4]',
             'outtmpl': '%(title)s.%(ext)s',
             'merge_output_format': 'mp4',  
             'postprocessors': [{
@@ -78,7 +78,7 @@ def format_urls():
         }
     else:
         ydl_opts = {
-            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+            'format': 'bestvideo[ext=mp4]+bestaudio/best[ext=mp4]',
                 'outtmpl': f"{download_folder}/%(title)s.%(ext)s",
                 'merge_output_format': 'mp4',
                 'postprocessors': [{
