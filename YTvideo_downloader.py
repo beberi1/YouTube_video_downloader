@@ -4,9 +4,7 @@ import yt_dlp
 import os
 import sys
 import subprocess
-
-# Global variable for download folder
-download_folder = ""
+import tempfile
 
 def progress_hook(d):
     """Updates the status label based on download progress."""
@@ -31,6 +29,7 @@ def select_folder():
     if folder:
         download_folder = folder
         folder_label.config(text=f"აირჩეული დირექტორია: {folder}", foreground="green")
+        save_last_directory(folder) 
 
 
 # გადმოწერის ლოგიკები
@@ -106,12 +105,39 @@ def format_urls():
         status_label.config(text="გადმოწერა დასრულდა!", foreground="green")
 
 
+# ეს ქმნის %temp% დირექტორიაში დროებით ჩანაწერს რომ დაიმახსოვროს არჩეული დირექტორია
+CONFIG_FILE = os.path.join(tempfile.gettempdir(), "yt_gui_lastdir.txt")
 
-# Create main window
+
+def load_last_directory():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    return ""
+
+def save_last_directory(folder):
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        f.write(folder)
+
+
+
+download_folder = load_last_directory()
+
+if download_folder:
+    folder_label_text = f"აირჩეული დირექტორია: {download_folder}"
+    folder_label_color = "green"
+else:
+    folder_label_text = "დირექტორია არ არის არჩეული"
+    folder_label_color = "red"
+
+
+
+
+# Tkinter part
 root = tk.Tk()
 root.title("გადმოიწერე იუთუბიდან")
 root.geometry("700x400")
-root.configure(bg="#9ACBD0")  # Dark background color
+root.configure(bg="#9ACBD0")  
 
 # Define styles
 style = ttk.Style()
@@ -160,8 +186,16 @@ download_button.grid(row=0, column=0, padx=10, pady=10)
 folder_button = ttk.Button(action_frame, text="არჩევა", command=select_folder, style="TButton")
 folder_button.grid(row=0, column=1, padx=10, pady=10)
 
-folder_label = ttk.Label(action_frame, text="დირექტორია არ არის არჩეული", foreground="red", background="#F2EFE7")
+# არჩეული დირექტორიისთვის
+folder_label = ttk.Label(action_frame, text="", foreground="red", background="#F2EFE7")
 folder_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
+
+if download_folder:
+    folder_label.config(text=f"აირჩეული დირექტორია: {download_folder}", foreground="green")
+else:
+    folder_label.config(text="დირექტორია არ არის არჩეული", foreground="red")
+
+
 
 open_folder_button = ttk.Button(action_frame, text="გახსნა", command=open_folder)
 open_folder_button.grid(row=0, column=3, padx=10, pady=10)
